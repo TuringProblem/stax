@@ -11,6 +11,8 @@ import java.util.Base64;
 import java.util.Scanner;
 import java.util.function.Supplier;
 import java.util.function.Function;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author { @Override } | 20:46 ; 20250216
@@ -18,10 +20,24 @@ import java.util.function.Function;
  **/
 
 public class TerminalApp {
+
+    //public record Card(String id, String name, CardType type, int power) {}
     public record User(String userName, String passWord) implements Serializable {}
+    /*
+    public record CardChamber(List<Card> cards) {
+        public CardChamber {
+
+            if (cards.size() > 15) {
+                throw new IllegalArgumentException("Chamber cannot contain more than 15 cards\n");
+            }
+            cards = Collections.unmodifiableList(cards);
+        }
+    }
+    */
+
     public static void main(String[] args) throws InterruptedException {
 	Scanner scan = new Scanner(System.in);
-	//Console console = System.console();
+	TUIUtility util = new TUIUtility();
 
         final String CLEAR_SCREEN = "\033[H\033[2J";  // Clears the terminal
         final String REDTEXT = "\033[31m";  // Sets text to red
@@ -49,10 +65,10 @@ public class TerminalApp {
 
 	System.out.printf("\nUser Credentials: %s\n", user.toString()); 
 
-	Thread.sleep(10000);
+	Thread.sleep(3000);
+	util.loadingScreen(100);
         System.out.print(CLEAR_SCREEN);
         System.out.flush();
-	
     }
 
     private static User initializeUser(Supplier<String> name, Supplier<String> password) {
