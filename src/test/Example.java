@@ -10,18 +10,14 @@ public class Example {
         int[] nums = new int[100];
         for (int i = 0; i < nums.length; i++) {
             nums[i] = i + 1;
+            System.out.printf("%d -", n);
         }
+
 
         // converting @see nums -> into a List using Streams
         List<Integer> numList = Arrays.stream(nums).boxed().collect(Collectors.toList());
 
         Collections.shuffle(numList);
         System.out.println(numList);
-
-        for (int n : nums) {
-            System.out.printf("%d", n);
-
-        }
-
     }
 }

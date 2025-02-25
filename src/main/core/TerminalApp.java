@@ -8,7 +8,6 @@ import game.login.User;
 import java.util.Random;
 import java.util.Base64;
 import java.util.Scanner;
-import java.util.function.Supplier;
 import java.util.function.Function;
 
 /**
@@ -32,12 +31,11 @@ public class TerminalApp {
         System.out.printf("%s Welcome to My Java Terminal App!%s", REDTEXT, RESET);
 
         prettyHome();
-
         Thread.sleep(1000);
 
         // initializeUser(); -> my method is sooooo much better :* (initializeUser()
         // originally was void and just did imperative way) -> new way is functional
-        User user = initializeUser(() -> {
+        User user = User.initializeUser(() -> {
             System.out.println("\nPlease Enter your userName: ");
             return scan.nextLine();
         }, () -> {
@@ -52,6 +50,7 @@ public class TerminalApp {
         System.out.print(CLEAR_SCREEN);
         System.out.flush();
         scan.close();
+
     }
 
     private static void prettyHome() {
@@ -64,14 +63,14 @@ public class TerminalApp {
         System.out.println("╚════════════════╝");
     }
 
-    private static User initializeUser(Supplier<String> name, Supplier<String> password) {
-        return new User(name.get(), password.get());
-    }
-
     /**
      * {@code resetPassword() -> handles replacing the text (i.e: "Hey" -> converted "***")}
      *
      **/
+
+    // NOTE: !{ 20250225 : @14:55} This might need to be change which is a little
+    // upsetting but I understand for the archtiecture of the whole program it makes
+    // sense.
 
     static Function<String, String> applyHashingPass = pass -> abstractPassword(pass, generateSalt());
 

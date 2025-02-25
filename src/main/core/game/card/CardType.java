@@ -12,6 +12,7 @@ public enum CardType {
 
     DEFENSIVE,
     OFFENSIVE,
+    SUPPORT,
     WILD_CARD
 
 }

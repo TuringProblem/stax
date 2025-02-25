@@ -10,6 +10,7 @@ public enum CardRarity {
     ROOKIE,
     APPRENTICE,
     UNIQUE,
-    LEGENDARY
+    LEGENDARY,
+    MYTHICAL
 
 }
