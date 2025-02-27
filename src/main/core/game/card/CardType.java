@@ -8,11 +8,12 @@ public enum CardType {
     /**
      * TODO: Come up with a system for the types (which card has benefits over the
      * other)
+     * OFFENSIVE => Attack cards
+     * SUPPORT => Healing cards, and other Supportive roles (buffs)
+     * WILDCARD => Cards that will be CRITICAL for strategically winning
      **/
 
-    DEFENSIVE,
     OFFENSIVE,
     SUPPORT,
-    WILD_CARD
-
+    WILDCARD
 }

@@ -9,7 +9,6 @@ import game.login.User;
 
 public record Player(String id, User user, CardChamber chamber, int ranking) {
     /**
-     *
      * withRanking(int newRanking) expects that after every game (whether win or
      * lose) -> the user will have a new rank
      * This handles that new instance of {@see Player} -> with the accumulated rank.
@@ -21,12 +20,16 @@ public record Player(String id, User user, CardChamber chamber, int ranking) {
     /**
      * @see CardChamber class: handles the inventory of cards that the user
      *      currently has on hand.
-     *      withChamber(CardChamber newChamber) expects that when the user adds a
+     *      withCards(CardChamber newChamber) expects that when the user adds a
      *      new card into the inventory
      *      There will be an update via {@see Player} -> with the new updated
      *      inventory of cards.
      **/
-    public Player withChamber(CardChamber newChamber) {
+    public Player withCards(CardChamber newChamber) {
         return new Player(id, user, newChamber, ranking);
     }
+
+    // TODO: Still need to worry about when you are battling - and make a health
+    // etc...
+
 }
