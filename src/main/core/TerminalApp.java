@@ -82,8 +82,7 @@ public class TerminalApp {
                 ╔════════════════════════════╗
                 ║     [Welcome to Stax]      ║
                 ║--------------------------- ║
-                ║ This is a test from yo     ║
-                ║       Momma.               ║
+                ║      --Main Menu--         ║
                 ║----------------------------║
                 ║ [1]: Matchmaking           ║
                 ║ [2]: Card stash            ║
@@ -96,6 +95,10 @@ public class TerminalApp {
 
             return switch (value) {
                 case 1 -> 1;
+                case 2 -> {
+                    System.out.println("Let's go, switching to Card Stash");
+                    yield 2;
+                }
                 default -> {
                     System.out.println("Stop fucking around\n");
                     yield 0;
