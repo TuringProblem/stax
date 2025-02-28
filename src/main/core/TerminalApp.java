@@ -7,6 +7,7 @@ import game.login.User;
 
 import java.util.Random;
 import java.util.Base64;
+import java.util.MissingFormatArgumentException;
 import java.util.Scanner;
 import java.util.function.Function;
 
@@ -17,8 +18,9 @@ import java.util.function.Function;
 
 public class TerminalApp {
 
+    public static Scanner scan = new Scanner(System.in);
+
     public static void main(String[] args) throws InterruptedException {
-        Scanner scan = new Scanner(System.in);
         TUIUtility util = new TUIUtility();
 
         final String CLEAR_SCREEN = "\033[H\033[2J"; // Clears the terminal
@@ -35,22 +37,75 @@ public class TerminalApp {
 
         // initializeUser(); -> my method is sooooo much better :* (initializeUser()
         // originally was void and just did imperative way) -> new way is functional
-        User user = User.initializeUser(() -> {
-            System.out.println("\nPlease Enter your userName: ");
-            return scan.nextLine();
-        }, () -> {
-            System.out.println("Enter Password: ");
-            return applyHashingPass.apply(scan.nextLine());
-        });
+        System.out.println("Enter mode: ");
 
-        System.out.printf("\nUser Credentials: %s\n", user.toString());
+        String mode = scan.nextLine();
 
-        Thread.sleep(3000);
-        util.loadingScreen(100);
-        System.out.print(CLEAR_SCREEN);
-        System.out.flush();
-        scan.close();
+        switch (mode) {
+            case "main" -> {
+                User user = User.initializeUser(() -> {
+                    System.out.println("\nPlease Enter your userName: ");
+                    return scan.nextLine();
+                }, () -> {
+                    System.out.println("Enter Password: ");
+                    return applyHashingPass.apply(scan.nextLine());
+                });
 
+                System.out.printf("\nUser Credentials: %s\n", user.toString());
+
+                Thread.sleep(3000);
+                util.loadingScreen(100);
+                System.out.print(CLEAR_SCREEN);
+                System.out.flush();
+                homeInterface();
+
+                scan.close();
+            }
+
+            case "dev" -> {
+
+                System.out.print(CLEAR_SCREEN);
+                System.out.flush();
+                homeInterface();
+
+                scan.close();
+
+            }
+            default -> System.out.println("fuck out");
+
+        }
+    }
+
+    public static int homeInterface() {
+
+        System.out.println("""
+                ╔════════════════════════════╗
+                ║     [Welcome to Stax]      ║
+                ║--------------------------- ║
+                ║ This is a test from yo     ║
+                ║       Momma.               ║
+                ║----------------------------║
+                ║ [1]: Matchmaking           ║
+                ║ [2]: Card stash            ║
+                ║ [3]: Something...          ║
+                ║ [4]: Settings              ║
+
+                    """);
+        try {
+            int value = scan.nextInt();
+
+            return switch (value) {
+                case 1 -> 1;
+                default -> {
+                    System.out.println("Stop fucking around\n");
+                    yield 0;
+                }
+            };
+
+        } catch (MissingFormatArgumentException e) {
+            System.out.println(e.getMessage());
+        }
+        return 0;
     }
 
     private static void prettyHome() {
