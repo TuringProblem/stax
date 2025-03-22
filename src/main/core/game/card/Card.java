@@ -1,21 +1,39 @@
 package game.card;
 
+import java.util.UUID;
+
 /**
  * @author { @Override } | 17:26 ; 20250218
  * @see <a href="https://github.com/TuringProblem">GitHub Profile</a>
  **/
 
 public record Card(String id, String name, CardType type, CardRarity rarity, CardStyle style, int power) {
-  // Using Static Factory to create the card
-  public static card createCard(String name, int power) {
-    return new Card(java.util.UUID.randomUUID().toString(), name, CardType.randomType(), CardRarity., power);
+  Card isStarterPack() {
+    return new Card(
+        UUID.randomUUID().toString(),
+        getTypeSymbol(type),
+        type,
+        CardRarity.getRandomRarity(),
+        CardStyle.getRandomCardStyle(),
+        getPower(rarity));
   }
 
-  public String getTypeSymbol() {
+  public String getTypeSymbol(CardType type) {
     return switch (type) {
-      case OFFENSIVE -> "|⚔|";
-      case SUPPORT -> "|✝|";
-      case WILDCARD -> "|?|";
+      case OFFENSIVE -> "|⚔| Offensive |⚔|";
+      case SUPPORT -> "|✝| Support |✝|";
+      case WILDCARD -> "|?| Wildcard |?|";
+    };
+  }
+
+  public int getPower(CardRarity rarity) {
+    return switch (rarity) {
+      case BEGINNER -> CardRarity.BEGINNER.getPower();
+      case ROOKIE -> CardRarity.ROOKIE.getPower();
+      case APPRENTICE -> CardRarity.APPRENTICE.getPower();
+      case UNIQUE -> CardRarity.UNIQUE.getPower();
+      case LEGENDARY -> CardRarity.LEGENDARY.getPower();
+      case MYTHICAL -> CardRarity.MYTHICAL.getPower();
     };
   }
 

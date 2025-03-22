@@ -35,23 +35,29 @@ public enum CardRarity {
    *
    **/
 
-  BEGINNER(50),
-  ROOKIE(20),
-  APPRENTICE(5),
-  UNIQUE(1),
-  LEGENDARY(0.5),
-  MYTHICAL(0.01);
+  BEGINNER(50, 10),
+  ROOKIE(20, 20),
+  APPRENTICE(5, 30),
+  UNIQUE(1, 40),
+  LEGENDARY(0.5, 50),
+  MYTHICAL(0.01, 60);
 
   private final float chance;
+  private final int power;
   private static final List<CardRarity> VALUES = Collections.unmodifiableList(Arrays.asList());
   private static final Random RAND = new Random();
 
-  private CardRarity(float chance) {
+  private CardRarity(float chance, int power) {
     this.chance = chance;
+    this.power = power;
   }
 
   public float getChance() {
     return chance;
+  }
+
+  public int getPower() {
+    return power;
   }
 
   public static CardRarity getRandomRarity() {
