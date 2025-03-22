@@ -70,6 +70,7 @@ enum CardElement {
 /**
  * Card class representing a game card with enhanced properties
  */
+
 class Card {
     private final String id;
     private final String name;
