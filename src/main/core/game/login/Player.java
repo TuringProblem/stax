@@ -1,6 +1,6 @@
+package game.login;
 
 import game.card.CardChamber;
-import game.login.User;
 
 /**
  * @author { @Override } | 17:06 : 20250217

@@ -35,12 +35,12 @@ public enum CardRarity {
    *
    **/
 
-  BEGINNER(50, 10),
-  ROOKIE(20, 20),
-  APPRENTICE(5, 30),
-  UNIQUE(1, 40),
-  LEGENDARY(0.5, 50),
-  MYTHICAL(0.01, 60);
+  BEGINNER(50.0f, 10),
+  ROOKIE(20.0f, 20),
+  APPRENTICE(5.0f, 30),
+  UNIQUE(1.0f, 40),
+  LEGENDARY(0.5f, 50),
+  MYTHICAL(0.01f, 60);
 
   private final float chance;
   private final int power;

@@ -6,12 +6,19 @@ import java.security.MessageDigest;
 import game.login.User;
 import game.login.Player;
 
+import game.card.CardChamber;
+import game.card.CardRarity;
+import game.card.CardStyle;
+import game.card.CardType;
+import game.card.Card;
+
 import java.util.Random;
 import java.util.Base64;
 import java.util.MissingFormatArgumentException;
 import java.util.Scanner;
 import java.util.function.Function;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author { @Override } | 20:46 ; 20250216
@@ -36,7 +43,6 @@ public class TerminalApp {
 
     prettyHome();
     Thread.sleep(1000);
-
     // initializeUser(); -> my method is sooooo much better :* (initializeUser()
     // originally was void and just did imperative way) -> new way is functional
     System.out.println("Enter mode: ");
@@ -44,7 +50,9 @@ public class TerminalApp {
     String mode = scan.nextLine();
 
     switch (mode) {
+
       case "main" -> {
+
         User user = User.initializeUser(() -> {
           System.out.println("\nPlease Enter your userName: ");
           return scan.nextLine();
@@ -52,6 +60,7 @@ public class TerminalApp {
           System.out.println("Enter Password: ");
           return applyHashingPass.apply(scan.nextLine());
         });
+
         System.out.printf("\nUser Credentials: %s\n", user.toString());
         Thread.sleep(3000);
         util.loadingScreen(100);
@@ -61,9 +70,15 @@ public class TerminalApp {
 
         scan.close();
 
-        // Player player = new Player(user, new Card(), 0);
-      }
+        List<Card> cards = new ArrayList<>();
+        cards.add(new Card("69", "name", CardType.randomType(), CardRarity.getRandomRarity(),
+            CardStyle.getRandomCardStyle(), 0));
 
+        Player player = new Player(user, new CardChamber(cards), 0);
+
+        System.out.printf("Player: %s\n", player.printPlayer());
+
+      }
       case "dev" -> {
         System.out.print(CLEAR_SCREEN);
         System.out.flush();
