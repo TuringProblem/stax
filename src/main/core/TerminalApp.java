@@ -3,22 +3,14 @@ import java.nio.charset.StandardCharsets;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
-import game.login.User;
-import game.login.Player;
-
-import game.card.CardChamber;
-import game.card.CardRarity;
-import game.card.CardStyle;
-import game.card.CardType;
-import game.card.Card;
+import game.login.UserManager;
 
 import java.util.Random;
 import java.util.Base64;
 import java.util.MissingFormatArgumentException;
 import java.util.Scanner;
 import java.util.function.Function;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * @author { @Override } | 20:46 ; 20250216
@@ -52,31 +44,7 @@ public class TerminalApp {
     switch (mode) {
 
       case "main" -> {
-
-        User user = User.initializeUser(() -> {
-          System.out.println("\nPlease Enter your userName: ");
-          return scan.nextLine();
-        }, () -> {
-          System.out.println("Enter Password: ");
-          return applyHashingPass.apply(scan.nextLine());
-        });
-
-        System.out.printf("\nUser Credentials: %s\n", user.toString());
-        Thread.sleep(3000);
-        util.loadingScreen(100);
-        System.out.print(CLEAR_SCREEN);
-        System.out.flush();
-        homeInterface();
-
-        scan.close();
-
-        List<Card> cards = new ArrayList<>();
-        cards.add(new Card("69", "name", CardType.randomType(), CardRarity.getRandomRarity(),
-            CardStyle.getRandomCardStyle(), 0));
-
-        Player player = new Player(user, new CardChamber(cards), 0);
-
-        System.out.printf("Player: %s\n", player.printPlayer());
+        UserManager.initializePlayer();
 
       }
       case "dev" -> {
@@ -86,25 +54,53 @@ public class TerminalApp {
 
       }
       default -> System.out.println("fuck out");
-
     }
   }
 
+  // HashMap<>
+  //
   public static int homeInterface() {
+    BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
+      return switch (x) {
+        case "red" -> String.format("\033[31m%s\033[0m", text);
+        case "green" -> String.format("\033[32m%s\033[0m", text);
+        case "yellow" -> String.format("\033[33m%s\033[0m", text);
+        case "blue" -> String.format("\033[34m%s\033[0m", text);
+        case "purple" -> String.format("\033[35m%s\033[0m", text);
+        case "teal" -> String.format("\033[36m%s\033[0m", text);
+        case "wildcard" -> String.format("\033[36m%s\033[0m", text);
+        default -> "";
+      };
+    };
 
-    System.out.println("""
-        ╔════════════════════════════╗
-        ║     [Welcome to Stax]      ║
-        ║--------------------------- ║
-        ║      --Main Menu--         ║
-        ║----------------------------║
-        ║ [1]: Matchmaking           ║
-        ║ [2]: Card stash            ║
-        ║ [3]: Something...          ║
-        ║ [4]: Settings              ║
-        ║                            ║
+    String top = interfaceConsumer.get("red", "=========");
+    String green = interfaceConsumer.get("green", "=========");
+    String yellow = interfaceConsumer.get("yellow", "=========");
+    String blue = interfaceConsumer.get("blue", "=========");
+    String purple = interfaceConsumer.get("purple", "=========");
+    String rando = interfaceConsumer.get("wildcard", "=========");
 
-            """);
+    System.out.println(top);
+    System.out.println(green);
+    System.out.println(yellow);
+    System.out.println(blue);
+    System.out.println(purple);
+    System.out.println(rando);
+    /**
+     * String logo = """
+     * \033[31m╔════════════════════════════╗\033[0m
+     * \033[31m║\033[0m [Welcome to Stax] \033[31m║\033[0m
+     * ║--------------------------- ║
+     * ║ --Main Menu-- ║
+     * ║----------------------------║
+     * ║ [1]: Matchmaking ║
+     * ║ [2]: Card stash ║
+     * ║ [3]: Something... ║
+     * ║ [4]: Settings ║
+     * ╚════════════════════════════╝""";
+     **/
+
+    // System.out.println(logo);
     try {
       int value = scan.nextInt();
 
@@ -127,6 +123,7 @@ public class TerminalApp {
   }
 
   private static void prettyHome() {
+
     System.out.println("");
     System.out.println("╔════════════════╗");
     System.out.println("║   Welcome!     ║");

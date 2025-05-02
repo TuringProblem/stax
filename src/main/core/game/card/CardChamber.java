@@ -9,10 +9,10 @@ import java.util.List;
  **/
 
 public record CardChamber(List<Card> cards) {
-    public CardChamber {
-        if (cards.size() > 15) {
-            throw new IllegalArgumentException("Chamber cannot contain more than 15 cards\n");
-        }
-        cards = Collections.unmodifiableList(cards);
+  public CardChamber {
+    if (cards.size() > 25) {
+      throw new IllegalArgumentException("Chamber cannot contain more than 25 cards\n");
     }
+    cards = Collections.unmodifiableList(cards);
+  }
 }

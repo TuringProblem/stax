@@ -9,8 +9,8 @@ import java.util.function.Supplier;
  **/
 
 public record User(String userName, String passWord) implements Serializable {
-    public static User initializeUser(Supplier<String> name, Supplier<String> password) {
-        return new User(name.get(), password.get());
-    }
+  public static User initializeUser(Supplier<String> name, Supplier<String> password) {
+    return new User(name.get(), password.get());
+  }
 
 }

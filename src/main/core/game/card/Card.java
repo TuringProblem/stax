@@ -8,6 +8,7 @@ import java.util.UUID;
  **/
 
 public record Card(String id, String name, CardType type, CardRarity rarity, CardStyle style, int power) {
+
   Card isStarterPack() {
     return new Card(
         UUID.randomUUID().toString(),
