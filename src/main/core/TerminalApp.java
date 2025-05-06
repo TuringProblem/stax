@@ -7,10 +7,10 @@ import game.login.UserManager;
 
 import java.util.Random;
 import java.util.Base64;
-import java.util.MissingFormatArgumentException;
+import java.util.HashMap;
+//import java.util.MissingFormatArgumentException;
 import java.util.Scanner;
 import java.util.function.Function;
-import java.util.function.BiConsumer;
 
 /**
  * @author { @Override } | 20:46 ; 20250216
@@ -21,18 +21,43 @@ public class TerminalApp {
 
   public static Scanner scan = new Scanner(System.in);
 
+  public HashMap<String, Function<String, String>> myMap = new HashMap<>();
+
+  public static BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
+    return switch (x) {
+      case "red" -> String.format("%s%s%s", x, text, TUI.RESET.getAnsiCode());
+      case "green" -> String.format("%s", text);
+      case "yellow" -> String.format("\033[33m%s\033[0m", text);
+      case "blue" -> String.format("\033[34m%s\033[0m", text);
+      case "purple" -> String.format("\033[35m%s\033[0m", text);
+      case "teal" -> String.format("\033[36m%s\033[0m", text);
+      case "wildcard" -> String.format("\033[36m%s\033[0m", text);
+      default -> "";
+    };
+  };
+
+  public static Function<String, String> printWithColor = str -> {
+    System.out.println("Enter the color you want your text to come out with: ");
+    String nextColor = scan.nextLine();
+    return interfaceConsumer.get(nextColor, str);
+  };
+
+  /**
+   * private static final String RESET = ""; // Resets text color
+   * private final String CLEAR_SCREEN = ""; // Clears the terminal
+   * private final String REDTEXT = ""; // Sets text to red
+   * private static final String BLUEBACKGROUND = ""; // Sets text to red
+   * private final String STROBE = "";
+   **/
+  // final String MIXED = REDTEXT + BLUEBACKGROUND;
+  // private static final String MIXED = REDTEXT.concat(BLUEBACKGROUND);
+
   public static void main(String[] args) throws InterruptedException {
     TUIUtility util = new TUIUtility();
-
-    final String CLEAR_SCREEN = "\033[H\033[2J"; // Clears the terminal
-    final String REDTEXT = "\033[31m"; // Sets text to red
-    final String RESET = "\033[0m"; // Resets text color
-
-    System.out.print(CLEAR_SCREEN);
+    System.out.print(TUI.CLEAR_SCREEN.getAnsiCode());
     System.out.flush(); // Ensures the screen is cleared immediately
 
-    System.out.printf("%s Welcome to My Java Terminal App!%s", REDTEXT, RESET);
-
+    System.out.printf("%s Welcome to My Java Terminal App!%s\n", TUI.MIXED.getAnsiCode(), TUI.RESET.getAnsiCode());
     prettyHome();
     Thread.sleep(1000);
     // initializeUser(); -> my method is sooooo much better :* (initializeUser()
@@ -48,7 +73,7 @@ public class TerminalApp {
 
       }
       case "dev" -> {
-        System.out.print(CLEAR_SCREEN);
+        System.out.print(TUI.CLEAR_SCREEN.getAnsiCode());
         System.out.flush();
         homeInterface();
 
@@ -57,68 +82,46 @@ public class TerminalApp {
     }
   }
 
-  // HashMap<>
+  // HashMap<Sting, Functio<Does something...>
+  //
   //
   public static int homeInterface() {
-    BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
-      return switch (x) {
-        case "red" -> String.format("\033[31m%s\033[0m", text);
-        case "green" -> String.format("\033[32m%s\033[0m", text);
-        case "yellow" -> String.format("\033[33m%s\033[0m", text);
-        case "blue" -> String.format("\033[34m%s\033[0m", text);
-        case "purple" -> String.format("\033[35m%s\033[0m", text);
-        case "teal" -> String.format("\033[36m%s\033[0m", text);
-        case "wildcard" -> String.format("\033[36m%s\033[0m", text);
-        default -> "";
-      };
-    };
 
-    String top = interfaceConsumer.get("red", "=========");
-    String green = interfaceConsumer.get("green", "=========");
-    String yellow = interfaceConsumer.get("yellow", "=========");
-    String blue = interfaceConsumer.get("blue", "=========");
-    String purple = interfaceConsumer.get("purple", "=========");
-    String rando = interfaceConsumer.get("wildcard", "=========");
-
-    System.out.println(top);
-    System.out.println(green);
-    System.out.println(yellow);
-    System.out.println(blue);
-    System.out.println(purple);
-    System.out.println(rando);
-    /**
-     * String logo = """
-     * \033[31m╔════════════════════════════╗\033[0m
-     * \033[31m║\033[0m [Welcome to Stax] \033[31m║\033[0m
-     * ║--------------------------- ║
-     * ║ --Main Menu-- ║
-     * ║----------------------------║
-     * ║ [1]: Matchmaking ║
-     * ║ [2]: Card stash ║
-     * ║ [3]: Something... ║
-     * ║ [4]: Settings ║
-     * ╚════════════════════════════╝""";
-     **/
-
-    // System.out.println(logo);
-    try {
-      int value = scan.nextInt();
-
-      return switch (value) {
-        case 1 -> 1;
-        case 2 -> {
-          System.out.println("Let's go, switching to Card Stash");
-          yield 2;
-        }
-        default -> {
-          System.out.println("Stop fucking around\n");
-          yield 0;
-        }
-      };
-
-    } catch (MissingFormatArgumentException e) {
-      System.out.println(e.getMessage());
+    System.out.println("Enter some text! :)");
+    String thatText = scan.nextLine();
+    printWithColor.apply(thatText);
+    System.out.println("Please tell me something :)");
+    String something = scan.nextLine();
+    while (!something.equals("exit")) {
+      if (something.equalsIgnoreCase("daddy")) {
+        System.out.println("I'm very interested, matter fact hold up...");
+        // this is where I'm going to test the hashMap :p
+        break;
+      }
     }
+    System.out.println("We out");
+    // * \033[31m║\033[0m [Welcome to Stax] \033[31m║\033[0m
+    // System.out.println(logo);
+    /**
+     * try {
+     * int value = scan.nextInt();
+     * 
+     * return switch (value) {
+     * case 1 -> 1;
+     * case 2 -> {
+     * System.out.println("Let's go, switching to Card Stash");
+     * yield 2;
+     * }
+     * default -> {
+     * System.out.println("Stop fucking around\n");
+     * yield 0;
+     * }
+     * };
+     * 
+     * } catch (MissingFormatArgumentException e) {
+     * System.out.println(e.getMessage());
+     * }
+     **/
     return 0;
   }
 
