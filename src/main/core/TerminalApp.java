@@ -19,38 +19,46 @@ import java.util.function.Function;
 
 public class TerminalApp {
 
-  public static Scanner scan = new Scanner(System.in);
+  private static Scanner scan = new Scanner(System.in);
 
-  public HashMap<String, Function<String, String>> myMap = new HashMap<>();
+  public HashMap<String, Function<String, String>> myMap = new HashMap<>(){{
 
-  public static BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
+  }};
+
+
+  private static BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
     return switch (x) {
-      case "red" -> String.format("%s%s%s", x, text, TUI.RESET.getAnsiCode());
-      case "green" -> String.format("%s", text);
-      case "yellow" -> String.format("\033[33m%s\033[0m", text);
-      case "blue" -> String.format("\033[34m%s\033[0m", text);
-      case "purple" -> String.format("\033[35m%s\033[0m", text);
-      case "teal" -> String.format("\033[36m%s\033[0m", text);
-      case "wildcard" -> String.format("\033[36m%s\033[0m", text);
+      case "red" -> String.format("%s%s%s", TUI.RED.getAnsiCode(), text, TUI.RESET.getAnsiCode());
+      case "green" -> String.format("%s%s%s", TUI.GREEN.getAnsiCode(), text, TUI.RESET.getAnsiCode());
+      case "yellow" -> String.format("%s%s%s", TUI.YELLOW.getAnsiCode(), text, TUI.RESET.getAnsiCode());
+      case "blue" -> String.format("%s%s%s", TUI.BLUE.getAnsiCode(), text, TUI.RESET.getAnsiCode());
+      case "purple" -> String.format("%s%s%s", TUI.PURPLE.getAnsiCode(), text, TUI.RESET.getAnsiCode());
+      case "cyan" -> String.format("%s%s%s", TUI.CYAN.getAnsiCode(), text, TUI.RESET.getAnsiCode());
+      case "wildcard" -> String.format("%s%s%s", TUI.WHITE_BACKGROUND.getAnsiCode(), text, TUI.RESET.getAnsiCode());
       default -> "";
     };
   };
 
-  public static Function<String, String> printWithColor = str -> {
+  private static String hand
+  private static Function<String, String> printWithColor = str -> {
+    if (str == null || str.isEmpty()) {
+      System.out.println("Please enter a valid string.");
+      return "";
+    }
+    if (str.equalsIgnoreCase("multiple")) {
+
+
+    }
     System.out.println("Enter the color you want your text to come out with: ");
     String nextColor = scan.nextLine();
+    while ()
+    System.out.println(interfaceConsumer.get(nextColor, str));
+    scan.close(); // BUG: (POTENTIAL): I should wrap this in a try{}catch() but fuck it we ball. 
     return interfaceConsumer.get(nextColor, str);
   };
 
-  /**
-   * private static final String RESET = ""; // Resets text color
-   * private final String CLEAR_SCREEN = ""; // Clears the terminal
-   * private final String REDTEXT = ""; // Sets text to red
-   * private static final String BLUEBACKGROUND = ""; // Sets text to red
-   * private final String STROBE = "";
-   **/
-  // final String MIXED = REDTEXT + BLUEBACKGROUND;
-  // private static final String MIXED = REDTEXT.concat(BLUEBACKGROUND);
+  // cache the color
+  // how are we going to do that: ? -> memoization? 
 
   public static void main(String[] args) throws InterruptedException {
     TUIUtility util = new TUIUtility();
@@ -90,16 +98,13 @@ public class TerminalApp {
     System.out.println("Enter some text! :)");
     String thatText = scan.nextLine();
     printWithColor.apply(thatText);
-    System.out.println("Please tell me something :)");
-    String something = scan.nextLine();
-    while (!something.equals("exit")) {
-      if (something.equalsIgnoreCase("daddy")) {
-        System.out.println("I'm very interested, matter fact hold up...");
-        // this is where I'm going to test the hashMap :p
-        break;
-      }
+
+    while (!thatText.equalsIgnoreCase("quit")) {
+      System.out.println("Enter some text! :)");
+      thatText = scan.nextLine();
+      printWithColor.apply(thatText);
+      System.out.println("If you want to quit type 'quit'");
     }
-    System.out.println("We out");
     // * \033[31m║\033[0m [Welcome to Stax] \033[31m║\033[0m
     // System.out.println(logo);
     /**
@@ -122,6 +127,7 @@ public class TerminalApp {
      * System.out.println(e.getMessage());
      * }
      **/
+    scan.close();
     return 0;
   }
 
