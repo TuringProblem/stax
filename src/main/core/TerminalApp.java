@@ -36,15 +36,13 @@ public class TerminalApp {
   // api.
   private static BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
     return switch (x) {
-      case "red" -> String.format("%s%s%s", TUI.Foreground.RED.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
-      case "green" -> String.format("%s%s%s", TUI.Foreground.GREEN.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
-      case "yellow" ->
-        String.format("%s%s%s", TUI.Foreground.YELLOW.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
-      case "blue" -> String.format("%s%s%s", TUI.Foreground.BLUE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
-      case "black" -> String.format("%s%s%s", TUI.Foreground.BLACK.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
-      case "purple" ->
-        String.format("%s%s%s", TUI.Foreground.PURPLE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
-      case "cyan" -> String.format("%s%s%s", TUI.Foreground.CYAN.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+      case "red" -> TUI.Foreground.RED.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "green" -> TUI.Foreground.GREEN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "yellow" -> TUI.Foreground.YELLOW.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "blue" -> TUI.Foreground.BLUE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "black" -> TUI.Foreground.BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "purple" -> TUI.Foreground.PURPLE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "cyan" -> TUI.Foreground.CYAN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
       case "wildcard" ->
         String.format("%s%s%s", TUI.Background.WHITE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
       default -> "";
@@ -72,17 +70,15 @@ public class TerminalApp {
     if (str.equalsIgnoreCase("multiple")) {
 
     }
-    String regexColorFromStr = "^((r:)|(g:)|(b:)|(p:)|(y:)|(bl:))"; // this is something that I want to figure out
+    String regexColorFromStr = "^((r:)|(g:)|(b:)|(p:)|(y:)|(bl:)|(cy:))"; // this is something that I want to figure out
     Pattern p = Pattern.compile(regexColorFromStr);
     Matcher m = p.matcher(str);
     boolean matchFound = m.find();
     if (matchFound) {
-
-      System.out.printf("Regex matched!: %s\n", pattern);
-      String output = returnRegexToStringFormat(regexColorFromStr, str);
-      // System.out.println(output);
-      return interfaceConsumer.get(output/* returnRegexToStringFormat(str) */, str);
-
+      String prefix = m.group();// grabbing the g: ... b: etc... I want to delete out
+      String content = str.substring(prefix.length()).trim();
+      String output = returnRegexToStringFormat(prefix);
+      return interfaceConsumer.get(output, content);
     } else {
       System.out.println("please enter a color: ");
       String nextColor = scan.nextLine();
@@ -90,17 +86,8 @@ public class TerminalApp {
     }
   };
 
-  public static String returnRegexToStringFormat(String regexCode, String sourceText) {
-    System.out.println("We made it here");
-    Pattern p = Pattern.compile(regexCode);
-    Matcher m = p.matcher(sourceText);
-    if (m.find()) {
-      String matched = m.group();
-      System.out.printf("We really have made it %s\n", matched);
-      // String content = matched.split(":");
-      // System.out.printf("We really REALLY have made it %s\n", content);
-
-      return switch (matched) {
+  public static String returnRegexToStringFormat( String sourceText) {
+      return switch (sourceText) {
         case "r:" -> "red";
         case "g:" -> "green";
         case "b:" -> "blue";
@@ -108,10 +95,9 @@ public class TerminalApp {
         case "w:" -> "white";
         case "p:" -> "purple";
         case "bl:" -> "black";
+        case "cy:" -> "cyan";
         default -> "";
       };
-    }
-    return "";
   }
 
   // cache the color
@@ -151,16 +137,28 @@ public class TerminalApp {
   //
   public static int homeInterface() {
     // #this is where
+    int count = 0;
     System.out.println("continue: ");
     String thatText = scan.nextLine();
     while (!thatText.equalsIgnoreCase("quit")) {
-      System.out.println("Enter some text! :)");
-      System.out.println("--[Home interface]--");
-      System.out.println("Enter text: ");
-      String colorOutput = printWithColor.apply(scan.nextLine());
-      System.out.println(colorOutput);
-      System.out.println("If you want to quit type 'quit'");
-      thatText = scan.nextLine();
+      if (count == 0) {
+
+        System.out.println("--[Home interface]--");
+        System.out.println("Enter text: ");
+        String colorOutput = printWithColor.apply(scan.nextLine());
+        System.out.println(colorOutput);
+        ++count;
+
+        System.out.println("If you want to quit type 'quit'");
+        thatText = scan.nextLine();
+      }
+      if (count >= 1) {
+        System.out.println("--[Home interface]--");
+        System.out.println("Enter text: ");
+        String colorOutput = printWithColor.apply(scan.nextLine());
+        System.out.println(colorOutput);
+        System.out.println(TUI.Utils.RESET.getAnsiCode());
+      }
     }
 
     // * \033[31m║\033[0m [Welcome to Stax] \033[31m║\033[0m
