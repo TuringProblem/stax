@@ -8,9 +8,11 @@ import game.login.UserManager;
 import java.util.Random;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Objects;
 //import java.util.MissingFormatArgumentException;
 import java.util.Scanner;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author { @Override } | 20:46 ; 20250216
@@ -19,27 +21,46 @@ import java.util.function.Function;
 
 public class TerminalApp {
 
+  // ColorHandler myHandler = new ColorHandler();
+
   private static Scanner scan = new Scanner(System.in);
+  public HashMap<String, Function<String, String>> myMap = new HashMap<>() {
+    {
+    }
+  };
 
-  public HashMap<String, Function<String, String>> myMap = new HashMap<>(){{
-
-  }};
-
-
+  // why is this color system importatnt? -> it's going to be with the hitting
+  // system :) but also going to be for other systems... this is going to be an
+  // api.
   private static BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
     return switch (x) {
-      case "red" -> String.format("%s%s%s", TUI.RED.getAnsiCode(), text, TUI.RESET.getAnsiCode());
-      case "green" -> String.format("%s%s%s", TUI.GREEN.getAnsiCode(), text, TUI.RESET.getAnsiCode());
-      case "yellow" -> String.format("%s%s%s", TUI.YELLOW.getAnsiCode(), text, TUI.RESET.getAnsiCode());
-      case "blue" -> String.format("%s%s%s", TUI.BLUE.getAnsiCode(), text, TUI.RESET.getAnsiCode());
-      case "purple" -> String.format("%s%s%s", TUI.PURPLE.getAnsiCode(), text, TUI.RESET.getAnsiCode());
-      case "cyan" -> String.format("%s%s%s", TUI.CYAN.getAnsiCode(), text, TUI.RESET.getAnsiCode());
-      case "wildcard" -> String.format("%s%s%s", TUI.WHITE_BACKGROUND.getAnsiCode(), text, TUI.RESET.getAnsiCode());
+      case "red" -> String.format("%s%s%s", TUI.Foreground.RED.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+      case "green" -> String.format("%s%s%s", TUI.Foreground.GREEN.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+      case "yellow" ->
+        String.format("%s%s%s", TUI.Foreground.YELLOW.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+      case "blue" -> String.format("%s%s%s", TUI.Foreground.BLUE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+      case "purple" ->
+        String.format("%s%s%s", TUI.Foreground.PURPLE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+      case "cyan" -> String.format("%s%s%s", TUI.Foreground.CYAN.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+      case "wildcard" ->
+        String.format("%s%s%s", TUI.Background.WHITE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
       default -> "";
     };
   };
 
-  private static String hand
+  /**
+   * private static String handleCaching(String value) {
+   * return "";
+   * }
+   **/
+  /**
+   * private static Supplier<String> regexSupplier = str -> {
+   * return switch (str) {
+   * case "\\^[g:]\\s" ->
+   * }
+   * };
+   **/
+
   private static Function<String, String> printWithColor = str -> {
     if (str == null || str.isEmpty()) {
       System.out.println("Please enter a valid string.");
@@ -47,41 +68,56 @@ public class TerminalApp {
     }
     if (str.equalsIgnoreCase("multiple")) {
 
-
     }
-    System.out.println("Enter the color you want your text to come out with: ");
+
+    String regexColorFromStr = "\\[re:]"; // this is something that I want to figure out
+    if (str.equalsIgnoreCase(regexColorFromStr)) {
+      interfaceConsumer.get(TUI.Foreground.RED.getAnsiCode(), str);
+    }
+    /**
+     * while (!str.equalsIgnoreCase("q:")) {
+     * // may need to change
+     * return switch (str) {
+     * case "^[r:]\\s+[b:]" -> {
+     * // this is where
+     * // interfaceConsumer.get(comboColor, str);
+     * yield "";
+     * }
+     * default -> interfaceConsumer.get("", str);
+     * };
+     * }
+     **/
+    System.out.println("please enter a color: ");
     String nextColor = scan.nextLine();
-    while ()
-    System.out.println(interfaceConsumer.get(nextColor, str));
-    scan.close(); // BUG: (POTENTIAL): I should wrap this in a try{}catch() but fuck it we ball. 
     return interfaceConsumer.get(nextColor, str);
+
   };
 
   // cache the color
-  // how are we going to do that: ? -> memoization? 
+  // how are we going to do that: ? -> memoization?
 
   public static void main(String[] args) throws InterruptedException {
     TUIUtility util = new TUIUtility();
-    System.out.print(TUI.CLEAR_SCREEN.getAnsiCode());
+    System.out.print(TUI.Utils.CLEAR_SCREEN.getAnsiCode());
     System.out.flush(); // Ensures the screen is cleared immediately
 
-    System.out.printf("%s Welcome to My Java Terminal App!%s\n", TUI.MIXED.getAnsiCode(), TUI.RESET.getAnsiCode());
+    System.out.printf("%s Welcome to My Java Terminal App!%s\n",
+        TUI.Foreground.WHITE.getAnsiCode() + TUI.Background.BLACK.getAnsiCode(),
+        TUI.Utils.RESET.getAnsiCode());
     prettyHome();
     Thread.sleep(1000);
     // initializeUser(); -> my method is sooooo much better :* (initializeUser()
     // originally was void and just did imperative way) -> new way is functional
     System.out.println("Enter mode: ");
-
     String mode = scan.nextLine();
 
     switch (mode) {
-
       case "main" -> {
         UserManager.initializePlayer();
 
       }
       case "dev" -> {
-        System.out.print(TUI.CLEAR_SCREEN.getAnsiCode());
+        System.out.print(TUI.Utils.CLEAR_SCREEN.getAnsiCode());
         System.out.flush();
         homeInterface();
 
@@ -92,19 +128,21 @@ public class TerminalApp {
 
   // HashMap<Sting, Functio<Does something...>
   //
-  //
   public static int homeInterface() {
-
+    // #this is where
     System.out.println("Enter some text! :)");
     String thatText = scan.nextLine();
-    printWithColor.apply(thatText);
+    String colorOutput = printWithColor.apply(thatText);
 
+    System.out.println(colorOutput);
     while (!thatText.equalsIgnoreCase("quit")) {
       System.out.println("Enter some text! :)");
-      thatText = scan.nextLine();
-      printWithColor.apply(thatText);
+      colorOutput = printWithColor.apply(scan.nextLine());
+      System.out.println(colorOutput);
       System.out.println("If you want to quit type 'quit'");
+      thatText = scan.nextLine();
     }
+
     // * \033[31m║\033[0m [Welcome to Stax] \033[31m║\033[0m
     // System.out.println(logo);
     /**
@@ -144,7 +182,6 @@ public class TerminalApp {
 
   /**
    * {@code resetPassword() -> handles replacing the text (i.e: "Hey" -> converted "***")}
-   *
    **/
 
   // NOTE: !{ 20250225 : @14:55} This might need to be change which is a little

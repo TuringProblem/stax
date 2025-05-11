@@ -6,16 +6,13 @@ if ["$#" -ne 1]; then
 fi
 
 FILE="$1"
-FILE_PATH="/src/main/java/"
-RUNABLE="${FILE_PATH}${FILE}.java"
+FILE_PATH="~/Documents/stax/src/main/core/"
+RUNABLE="${FILE}.java"
+JUMP="cd ${FILE_PATH}"
 
-if [! -f "$RUNABLE"]; then
-    echo "Error: ${RUNABLE} not found."
-    return 1
-fi
-cd "$FILE_PATH"
+cd "$FILE_PATH" || { echo "Can't cd to $FILE_PATH"; return 1; }
 echo "Compiling ${FILE}... "
-javac "${FILE}.java"
+javac "${RUNABLE}"
 
 if [$? -ne 0]; then
     echo "Compilation failed."
