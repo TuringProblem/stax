@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 import game.login.UserManager;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Random;
 import java.util.Base64;
 import java.util.HashMap;
@@ -69,29 +71,30 @@ public class TerminalApp {
     if (str.equalsIgnoreCase("multiple")) {
 
     }
-
-    String regexColorFromStr = "\\[re:]"; // this is something that I want to figure out
-    if (str.equalsIgnoreCase(regexColorFromStr)) {
-      interfaceConsumer.get(TUI.Foreground.RED.getAnsiCode(), str);
+    String regexColorFromStr = "^((r:)|(g:)|(b:))"; // this is something that I want to figure out
+    Pattern pattern = Pattern.compile(regexColorFromStr);
+    Matcher matcher = pattern.matcher(str);
+    boolean matchFound = matcher.find(); 
+    if (matchFound){
+      System.out.printf("Regex matched!: %s\n", pattern);
+      return interfaceConsumer.get("red"/*returnRegexToStringFormat(str)*/, str);
+    } else {
+      System.out.println("please enter a color: ");
+      String nextColor = scan.nextLine();
+      return interfaceConsumer.get(nextColor, str);
     }
-    /**
-     * while (!str.equalsIgnoreCase("q:")) {
-     * // may need to change
-     * return switch (str) {
-     * case "^[r:]\\s+[b:]" -> {
-     * // this is where
-     * // interfaceConsumer.get(comboColor, str);
-     * yield "";
-     * }
-     * default -> interfaceConsumer.get("", str);
-     * };
-     * }
-     **/
-    System.out.println("please enter a color: ");
-    String nextColor = scan.nextLine();
-    return interfaceConsumer.get(nextColor, str);
-
   };
+  public static String returnRegexToStringFormat(String regexCode) {
+    System.out.println("We made it here");
+    return switch(regexCode) {
+      case "^r:" -> "red";
+      case "^g:" -> "green";
+      case "^b:" -> "blue";
+      case "^w:" -> "white";
+      case "^bl:" -> "black";
+      default -> "";
+    };
+  }
 
   // cache the color
   // how are we going to do that: ? -> memoization?
@@ -130,14 +133,13 @@ public class TerminalApp {
   //
   public static int homeInterface() {
     // #this is where
-    System.out.println("Enter some text! :)");
+    System.out.println("continue: ");
     String thatText = scan.nextLine();
-    String colorOutput = printWithColor.apply(thatText);
-
-    System.out.println(colorOutput);
     while (!thatText.equalsIgnoreCase("quit")) {
       System.out.println("Enter some text! :)");
-      colorOutput = printWithColor.apply(scan.nextLine());
+      System.out.println("--[Home interface]--");
+      System.out.println("Enter text: ");
+      String colorOutput = printWithColor.apply(scan.nextLine());
       System.out.println(colorOutput);
       System.out.println("If you want to quit type 'quit'");
       thatText = scan.nextLine();
