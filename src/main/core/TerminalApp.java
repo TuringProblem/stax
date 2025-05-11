@@ -41,6 +41,7 @@ public class TerminalApp {
       case "yellow" ->
         String.format("%s%s%s", TUI.Foreground.YELLOW.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
       case "blue" -> String.format("%s%s%s", TUI.Foreground.BLUE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+      case "black" -> String.format("%s%s%s", TUI.Foreground.BLACK.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
       case "purple" ->
         String.format("%s%s%s", TUI.Foreground.PURPLE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
       case "cyan" -> String.format("%s%s%s", TUI.Foreground.CYAN.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
@@ -71,29 +72,46 @@ public class TerminalApp {
     if (str.equalsIgnoreCase("multiple")) {
 
     }
-    String regexColorFromStr = "^((r:)|(g:)|(b:))"; // this is something that I want to figure out
-    Pattern pattern = Pattern.compile(regexColorFromStr);
-    Matcher matcher = pattern.matcher(str);
-    boolean matchFound = matcher.find(); 
-    if (matchFound){
+    String regexColorFromStr = "^((r:)|(g:)|(b:)|(p:)|(y:)|(bl:))"; // this is something that I want to figure out
+    Pattern p = Pattern.compile(regexColorFromStr);
+    Matcher m = p.matcher(str);
+    boolean matchFound = m.find();
+    if (matchFound) {
+
       System.out.printf("Regex matched!: %s\n", pattern);
-      return interfaceConsumer.get("red"/*returnRegexToStringFormat(str)*/, str);
+      String output = returnRegexToStringFormat(regexColorFromStr, str);
+      // System.out.println(output);
+      return interfaceConsumer.get(output/* returnRegexToStringFormat(str) */, str);
+
     } else {
       System.out.println("please enter a color: ");
       String nextColor = scan.nextLine();
       return interfaceConsumer.get(nextColor, str);
     }
   };
-  public static String returnRegexToStringFormat(String regexCode) {
+
+  public static String returnRegexToStringFormat(String regexCode, String sourceText) {
     System.out.println("We made it here");
-    return switch(regexCode) {
-      case "^r:" -> "red";
-      case "^g:" -> "green";
-      case "^b:" -> "blue";
-      case "^w:" -> "white";
-      case "^bl:" -> "black";
-      default -> "";
-    };
+    Pattern p = Pattern.compile(regexCode);
+    Matcher m = p.matcher(sourceText);
+    if (m.find()) {
+      String matched = m.group();
+      System.out.printf("We really have made it %s\n", matched);
+      // String content = matched.split(":");
+      // System.out.printf("We really REALLY have made it %s\n", content);
+
+      return switch (matched) {
+        case "r:" -> "red";
+        case "g:" -> "green";
+        case "b:" -> "blue";
+        case "y:" -> "blue";
+        case "w:" -> "white";
+        case "p:" -> "purple";
+        case "bl:" -> "black";
+        default -> "";
+      };
+    }
+    return "";
   }
 
   // cache the color
