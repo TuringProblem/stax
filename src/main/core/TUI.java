@@ -58,4 +58,21 @@ public class TUI {
     }
 
   }
+
+  enum ComboColors {
+    RED_W_WHITE(TUI.Foreground.RED.getAnsiCode() + TUI.Background.WHITE.getAnsiCode()),
+    RED_W_BLACK(TUI.Foreground.RED.getAnsiCode() + TUI.Background.BLACK.getAnsiCode()),
+    RED_W_BLUE(TUI.Foreground.RED.getAnsiCode() + TUI.Background.BLUE.getAnsiCode()),
+    WHITE_W_BLACK(TUI.Foreground.WHITE.getAnsiCode() + TUI.Background.BLACK.getAnsiCode());
+
+    private String ansiCode;
+
+    ComboColors(String ansiCode) {
+      this.ansiCode = ansiCode;
+    }
+
+    public String getAnsiCode() {
+      return this.ansiCode;
+    }
+  }
 }

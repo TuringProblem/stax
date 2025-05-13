@@ -7,6 +7,7 @@ import game.login.UserManager;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import java.util.Random;
 import java.util.Base64;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 /**
  * @author { @Override } | 20:46 ; 20250216
@@ -36,19 +38,28 @@ public class TerminalApp {
   // api.
   private static BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
     return switch (x) {
-      case "red" -> TUI.Foreground.RED.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "green" -> TUI.Foreground.GREEN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "yellow" -> TUI.Foreground.YELLOW.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "blue" -> TUI.Foreground.BLUE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "black" -> TUI.Foreground.BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "purple" -> TUI.Foreground.PURPLE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "cyan" -> TUI.Foreground.CYAN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:red" -> TUI.Foreground.RED.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:green" -> TUI.Foreground.GREEN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:yellow" -> TUI.Foreground.YELLOW.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:blue" -> TUI.Foreground.BLUE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:black" -> TUI.Foreground.BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:purple" -> TUI.Foreground.PURPLE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:white" -> TUI.Foreground.WHITE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:cyan" -> TUI.Foreground.CYAN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "r::b" -> TUI.ComboColors.RED_W_BLUE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "r::bl" -> TUI.ComboColors.RED_W_BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "w::bl" -> TUI.ComboColors.WHITE_W_BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
       case "wildcard" ->
         String.format("%s%s%s", TUI.Background.WHITE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
       default -> "";
     };
   };
 
+  /**
+   *
+   * f:r;b:b;f:r;
+   *
+   **/
   /**
    * private static String handleCaching(String value) {
    * return "";
@@ -61,6 +72,10 @@ public class TerminalApp {
    * }
    * };
    **/
+  // structure design:
+  // f:{color} -> foreground
+  // b:{color} -> background
+  // f:{color};b:{color} -> combo (of both parties)
 
   private static Function<String, String> printWithColor = str -> {
     if (str == null || str.isEmpty()) {
@@ -70,15 +85,26 @@ public class TerminalApp {
     if (str.equalsIgnoreCase("multiple")) {
 
     }
-    String regexColorFromStr = "^((r:)|(g:)|(b:)|(p:)|(y:)|(bl:)|(cy:))"; // this is something that I want to figure out
-    Pattern p = Pattern.compile(regexColorFromStr);
+    // need to make the regex allow for {f:{text};b:{text}}
+    String availableColors = "(?:b|bl|w|r|g|cy|y|p)"; // this
+    String prefix = String.format("(?:(?:f:%1$s)(?:;b:%1$ss)?|b:%1$s)", availableColors);
+    //this regex above is working but for some reason it's not allowing me to do the full f:{color}... then assume that I wanted to have a background -> f:{color}b:{color}
+    String fullFormatted = String.format("^%s;(.+)$", prefix);
+    Pattern p = Pattern.compile(fullFormatted);
     Matcher m = p.matcher(str);
     boolean matchFound = m.find();
+
     if (matchFound) {
-      String prefix = m.group();// grabbing the g: ... b: etc... I want to delete out
-      String content = str.substring(prefix.length()).trim();
-      String output = returnRegexToStringFormat(prefix);
-      return interfaceConsumer.get(output, content);
+      String text = m.group(1);
+      String prefixedValueGrouped = str.substring(0, str.indexOf(';'));// grabbing the g: ... b: etc... I want to delete out
+      System.out.printf("prefixedValuedGrouped: %s\n", prefixedValueGrouped);
+      System.out.printf("text: %s\n", text);
+      //System.out.printf("Prefix=%s\nText=:%s", prefixedValueGrouped, text);
+      String content = str.substring(prefixedValueGrouped.length()).trim();
+      System.out.printf("content: %s\n", content);
+      String output = returnRegexToStringFormat(prefix);//gonna send this to 
+
+      return interfaceConsumer.get(output, text);
     } else {
       System.out.println("please enter a color: ");
       String nextColor = scan.nextLine();
@@ -86,28 +112,41 @@ public class TerminalApp {
     }
   };
 
-  public static String returnRegexToStringFormat( String sourceText) {
-      return switch (sourceText) {
-        case "r:" -> "red";
-        case "g:" -> "green";
-        case "b:" -> "blue";
-        case "y:" -> "blue";
-        case "w:" -> "white";
-        case "p:" -> "purple";
-        case "bl:" -> "black";
-        case "cy:" -> "cyan";
-        default -> "";
-      };
+  public static String groundHandler(String text) {
+    String subString = text.subString(0, text.indexOf(':'));
+    System.out.println(subString);
+    String mytext = text.equalsIgnoreCase("f:") ? "foreground" : "background";
+    System.out.printf("groundHandler(text:%s)\n", mytext);
+    return mytext;
+  }
+
+  public static String returnRegexToStringFormat(String sourceText) {
+    
+    return switch (sourceText) {
+      case "f:r" -> String.format("%sred", groundHandler(sourceText));
+      case "f:g" -> String.format("%s:green", groundHandler(sourceText));
+      case "f:b" -> String.format("%s:blue", groundHandler(sourceText));
+      case "f:y" -> String.format("%s:blue", groundHandler(sourceText));
+      case "f:w" -> String.format("%s:white", groundHandler(sourceText));
+      case "f:p" -> String.format("%s:purple", groundHandler(sourceText));
+      case "f:bl" -> String.format("%s:black", groundHandler(sourceText));
+      case "f:cy" -> String.format("%s:cyan", groundHandler(sourceText));
+      default -> "";
+    };
   }
 
   // cache the color
   // how are we going to do that: ? -> memoization?
+  public static void fancyPrint(String text) {
+    System.out.println(printWithColor.apply(text));
+  }
 
   public static void main(String[] args) throws InterruptedException {
     TUIUtility util = new TUIUtility();
     System.out.print(TUI.Utils.CLEAR_SCREEN.getAnsiCode());
     System.out.flush(); // Ensures the screen is cleared immediately
 
+    fancyPrint("w::bl; Welmcome to my Java Terminal App");
     System.out.printf("%s Welcome to My Java Terminal App!%s\n",
         TUI.Foreground.WHITE.getAnsiCode() + TUI.Background.BLACK.getAnsiCode(),
         TUI.Utils.RESET.getAnsiCode());
@@ -121,13 +160,11 @@ public class TerminalApp {
     switch (mode) {
       case "main" -> {
         UserManager.initializePlayer();
-
       }
       case "dev" -> {
         System.out.print(TUI.Utils.CLEAR_SCREEN.getAnsiCode());
         System.out.flush();
         homeInterface();
-
       }
       default -> System.out.println("fuck out");
     }
@@ -142,7 +179,6 @@ public class TerminalApp {
     String thatText = scan.nextLine();
     while (!thatText.equalsIgnoreCase("quit")) {
       if (count == 0) {
-
         System.out.println("--[Home interface]--");
         System.out.println("Enter text: ");
         String colorOutput = printWithColor.apply(scan.nextLine());
@@ -153,7 +189,7 @@ public class TerminalApp {
         thatText = scan.nextLine();
       }
       if (count >= 1) {
-        System.out.println("--[Home interface]--");
+        System.out.println(printWithColor.apply("f:r;--[Home interface]--"));
         System.out.println("Enter text: ");
         String colorOutput = printWithColor.apply(scan.nextLine());
         System.out.println(colorOutput);
@@ -190,12 +226,22 @@ public class TerminalApp {
   private static void prettyHome() {
 
     System.out.println("");
-    System.out.println("╔════════════════╗");
-    System.out.println("║   Welcome!     ║");
-    System.out.println("╠════════════════╣");
-    System.out.println("║ Developed:     ║");
-    System.out.println("║ @Override      ║");
-    System.out.println("╚════════════════╝");
+    // fancyPrint("r::w;╔════════════════╗");
+    // fancyPrint("w::r;║ Welcome! ║");
+    // fancyPrint("b::w;║ ║");
+    fancyPrint("f:r;╔════════════════╗");
+    // System.out.println(printWithColor.apply("r;╔════════════════╗"));
+    fancyPrint("f:w;║   Welcome!     ║");
+    // System.out.println(printWithColor.apply("w;║ Welcome! ║"));
+    fancyPrint("f:b;║                ║");
+    // System.out.println(printWithColor.apply("b;╠════════════════╣"));
+    fancyPrint("f:b;╠════════════════╣");
+    // System.out.println(printWithColor.apply("r;║ Developed: ║"));
+    fancyPrint("f:r;║ Developed:     ║");
+    // System.out.println(printWithColor.apply("w;║ @Override ║"));
+    fancyPrint("f:w;║ @Override      ║");
+    // System.out.println(printWithColor.apply("b;╚════════════════╝"));
+    fancyPrint("f:b;╚════════════════╝");
   }
 
   /**
