@@ -88,7 +88,9 @@ public class TerminalApp {
     // need to make the regex allow for {f:{text};b:{text}}
     String availableColors = "(?:b|bl|w|r|g|cy|y|p)"; // this
     String prefix = String.format("(?:(?:f:%1$s)(?:;b:%1$ss)?|b:%1$s)", availableColors);
-    //this regex above is working but for some reason it's not allowing me to do the full f:{color}... then assume that I wanted to have a background -> f:{color}b:{color}
+    // this regex above is working but for some reason it's not allowing me to do
+    // the full f:{color}... then assume that I wanted to have a background ->
+    // f:{color}b:{color}
     String fullFormatted = String.format("^%s;(.+)$", prefix);
     Pattern p = Pattern.compile(fullFormatted);
     Matcher m = p.matcher(str);
@@ -96,13 +98,14 @@ public class TerminalApp {
 
     if (matchFound) {
       String text = m.group(1);
-      String prefixedValueGrouped = str.substring(0, str.indexOf(';'));// grabbing the g: ... b: etc... I want to delete out
+      String prefixedValueGrouped = str.substring(0, str.indexOf(';'));// grabbing the g: ... b: etc... I want to delete
+                                                                       // out
       System.out.printf("prefixedValuedGrouped: %s\n", prefixedValueGrouped);
       System.out.printf("text: %s\n", text);
-      //System.out.printf("Prefix=%s\nText=:%s", prefixedValueGrouped, text);
+      // System.out.printf("Prefix=%s\nText=:%s", prefixedValueGrouped, text);
       String content = str.substring(prefixedValueGrouped.length()).trim();
       System.out.printf("content: %s\n", content);
-      String output = returnRegexToStringFormat(prefix);//gonna send this to 
+      String output = returnRegexToStringFormat(prefix);// gonna send this to
 
       return interfaceConsumer.get(output, text);
     } else {
@@ -113,24 +116,27 @@ public class TerminalApp {
   };
 
   public static String groundHandler(String text) {
-    String subString = text.subString(0, text.indexOf(':'));
-    System.out.println(subString);
+    System.out.printf("text from groundHandler: %s\n", text);
+    String subString = text.substring(0, text.indexOf(':'));
+    // System.out.println(subString);
     String mytext = text.equalsIgnoreCase("f:") ? "foreground" : "background";
     System.out.printf("groundHandler(text:%s)\n", mytext);
     return mytext;
   }
 
   public static String returnRegexToStringFormat(String sourceText) {
-    
+    String subText = sourceText.substring();
+    System.out.printf("SubText: %s", subText);
+
     return switch (sourceText) {
-      case "f:r" -> String.format("%sred", groundHandler(sourceText));
-      case "f:g" -> String.format("%s:green", groundHandler(sourceText));
-      case "f:b" -> String.format("%s:blue", groundHandler(sourceText));
-      case "f:y" -> String.format("%s:blue", groundHandler(sourceText));
-      case "f:w" -> String.format("%s:white", groundHandler(sourceText));
-      case "f:p" -> String.format("%s:purple", groundHandler(sourceText));
-      case "f:bl" -> String.format("%s:black", groundHandler(sourceText));
-      case "f:cy" -> String.format("%s:cyan", groundHandler(sourceText));
+      case "f:r" -> String.format("%sred", groundHandler(subText));
+      case "f:g" -> String.format("%s:green", groundHandler(subText));
+      case "f:b" -> String.format("%s:blue", groundHandler(subText));
+      case "f:y" -> String.format("%s:blue", groundHandler(subText));
+      case "f:w" -> String.format("%s:white", groundHandler(subText));
+      case "f:p" -> String.format("%s:purple", groundHandler(subText));
+      case "f:bl" -> String.format("%s:black", groundHandler(subText));
+      case "f:cy" -> String.format("%s:cyan", groundHandler(subText));
       default -> "";
     };
   }
