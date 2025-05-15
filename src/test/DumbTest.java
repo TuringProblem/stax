@@ -13,9 +13,15 @@ class DumbTest {
 
       wassgudName.accept(name);
     } catch (InputMismatchException e) {
-      wassgudName.accept(e.getMessage())
+      wassgudName.accept(e.getMessage());
     }
 
+    System.out.println("abc");
+    String cde = "cde";
+    System.out.println("abc" + cde);
+    String c = "\033[31m abc\033m".substring(1, 4);
+    String d = cde.substring(1, 2);
+    System.out.println(c);
+    System.out.println(d);
   }
-
 }

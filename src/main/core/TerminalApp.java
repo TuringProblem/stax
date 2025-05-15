@@ -8,7 +8,8 @@ import game.login.UserManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.util.Random;
+import java.security.SecureRandom;
+//import java.util.Random;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Objects;
@@ -37,6 +38,14 @@ public class TerminalApp {
   // system :) but also going to be for other systems... this is going to be an
   // api.
   private static BiSupplier<String, String, String> interfaceConsumer = (x, text) -> {
+    /**
+     * TODO: figure out how to properly parse through "essentially matrices" -> but
+     * are multi-line String
+     * currently parsing: '^?:(f:?)(?:;b:)?|b:' -- still need to determine a better
+     * regex pattern for this application parsing.
+     * possibly create an abstract syntax tree. (is not going to really be necessary
+     * unless I want to create the ansii engine)
+     **/
     return switch (x) {
       case "foreground:red" -> TUI.Foreground.RED.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
       case "foreground:green" -> TUI.Foreground.GREEN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
@@ -46,11 +55,14 @@ public class TerminalApp {
       case "foreground:purple" -> TUI.Foreground.PURPLE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
       case "foreground:white" -> TUI.Foreground.WHITE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
       case "foreground:cyan" -> TUI.Foreground.CYAN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "r::b" -> TUI.ComboColors.RED_W_BLUE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "r::bl" -> TUI.ComboColors.RED_W_BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
-      case "w::bl" -> TUI.ComboColors.WHITE_W_BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:red_background:blue" ->
+        TUI.ComboColors.RED_W_BLUE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:red_background:black" ->
+        TUI.ComboColors.RED_W_BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
+      case "foreground:white_background:black" ->
+        TUI.ComboColors.WHITE_W_BLACK.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
       case "wildcard" ->
-        String.format("%s%s%s", TUI.Background.WHITE.getAnsiCode(), text, TUI.Utils.RESET.getAnsiCode());
+        TUI.Background.WHITE.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
       default -> "";
     };
   };
@@ -76,6 +88,16 @@ public class TerminalApp {
   // f:{color} -> foreground
   // b:{color} -> background
   // f:{color};b:{color} -> combo (of both parties)
+  //
+
+  /**
+   *
+   * BUG: currently the regex is not correctly parsing -> we have the "right" type
+   * of parse (I guess),
+   * but I strongly believe I don't even need to use the Regex package and can
+   * .split() with an String[] obj.
+   *
+   **/
 
   private static Function<String, String> printWithColor = str -> {
     if (str == null || str.isEmpty()) {
@@ -83,7 +105,6 @@ public class TerminalApp {
       return "";
     }
     if (str.equalsIgnoreCase("multiple")) {
-
     }
     // need to make the regex allow for {f:{text};b:{text}}
     String availableColors = "(?:b|bl|w|r|g|cy|y|p)"; // this
@@ -100,12 +121,10 @@ public class TerminalApp {
       String text = m.group(1);
       String prefixedValueGrouped = str.substring(0, str.indexOf(';'));// grabbing the g: ... b: etc... I want to delete
                                                                        // out
-      System.out.printf("prefixedValuedGrouped: %s\n", prefixedValueGrouped);
-      System.out.printf("text: %s\n", text);
       // System.out.printf("Prefix=%s\nText=:%s", prefixedValueGrouped, text);
       String content = str.substring(prefixedValueGrouped.length()).trim();
-      System.out.printf("content: %s\n", content);
-      String output = returnRegexToStringFormat(prefix);// gonna send this to
+      System.out.printf("prefixedValuedGrouped: %s\ntext: %s\ncontent: %s\n", prefixedValueGrouped, text, content);
+      String output = returnRegexToStringFormat(prefixedValueGrouped);// gonna send this to
 
       return interfaceConsumer.get(output, text);
     } else {
@@ -116,27 +135,28 @@ public class TerminalApp {
   };
 
   public static String groundHandler(String text) {
-    System.out.printf("text from groundHandler: %s\n", text);
-    String subString = text.substring(0, text.indexOf(':'));
+    System.out.printf("text from groundHandler: %s\n", text.trim());
+    // String subString = text.substring(0, text.indexOf(':'));
     // System.out.println(subString);
     String mytext = text.equalsIgnoreCase("f:") ? "foreground" : "background";
     System.out.printf("groundHandler(text:%s)\n", mytext);
     return mytext;
   }
 
+  // hold on I'm fixing a format on my configs
   public static String returnRegexToStringFormat(String sourceText) {
-    String subText = sourceText.substring();
-    System.out.printf("SubText: %s", subText);
+    // String subText = sourceText.substring(1, 20);
+    // system.out.printf("SubText: %s", subText);
 
     return switch (sourceText) {
-      case "f:r" -> String.format("%sred", groundHandler(subText));
-      case "f:g" -> String.format("%s:green", groundHandler(subText));
-      case "f:b" -> String.format("%s:blue", groundHandler(subText));
-      case "f:y" -> String.format("%s:blue", groundHandler(subText));
-      case "f:w" -> String.format("%s:white", groundHandler(subText));
-      case "f:p" -> String.format("%s:purple", groundHandler(subText));
-      case "f:bl" -> String.format("%s:black", groundHandler(subText));
-      case "f:cy" -> String.format("%s:cyan", groundHandler(subText));
+      case "f:r" -> String.format("%sred", groundHandler(sourceText));
+      case "f:g" -> String.format("%s:green", groundHandler(sourceText));
+      case "f:b" -> String.format("%s:blue", groundHandler(sourceText));
+      case "f:y" -> String.format("%s:blue", groundHandler(sourceText));
+      case "f:w" -> String.format("%s:white", groundHandler(sourceText));
+      case "f:p" -> String.format("%s:purple", groundHandler(sourceText));
+      case "f:bl" -> String.format("%s:black", groundHandler(sourceText));
+      case "f:cy" -> String.format("%s:cyan", groundHandler(sourceText));
       default -> "";
     };
   }
@@ -276,10 +296,12 @@ public class TerminalApp {
     }
   }
 
+  // TODO:: switch to SecureRandom
   private static byte[] generateSalt() {
-    Random rand = new Random();
+    // NO LONGER NEED THIS, but I'm going to test{tegex Random rand = new Random();
+    SecureRandom random = new SecureRandom();
     byte[] salt = new byte[16];
-    rand.nextBytes(salt);
+    random.nextBytes(salt);
     return salt;
   }
 }
