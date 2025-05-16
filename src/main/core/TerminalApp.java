@@ -46,6 +46,7 @@ public class TerminalApp {
      * possibly create an abstract syntax tree. (is not going to really be necessary
      * unless I want to create the ansii engine)
      **/
+    // System.out.printf("\nx: %s\n\ntext: %s\n", x, text);
     return switch (x) {
       case "foreground:red" -> TUI.Foreground.RED.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
       case "foreground:green" -> TUI.Foreground.GREEN.getAnsiCode() + text + TUI.Utils.RESET.getAnsiCode();
@@ -119,12 +120,17 @@ public class TerminalApp {
 
     if (matchFound) {
       String text = m.group(1);
+      System.out.printf("text %s\n", text);
       String prefixedValueGrouped = str.substring(0, str.indexOf(';'));// grabbing the g: ... b: etc... I want to delete
-                                                                       // out
-      // System.out.printf("Prefix=%s\nText=:%s", prefixedValueGrouped, text);
-      String content = str.substring(prefixedValueGrouped.length()).trim();
-      System.out.printf("prefixedValuedGrouped: %s\ntext: %s\ncontent: %s\n", prefixedValueGrouped, text, content);
-      String output = returnRegexToStringFormat(prefixedValueGrouped);// gonna send this to
+      String backgroundValue = str.substring(4, 5);
+      System.out.printf("withBackground? %s\n", backgroundValue);
+
+      // String content = str.substring(prefixedValueGrouped.length()).trim();
+      // System.out.printf("prefixedValuedGrouped: %s\ntext: %s\ncontent: %s\n",
+      // prefixedValueGrouped, text, content);
+      
+      String output = returnRegexToStringFormat(groundHandler(backgroundValue).equalsIgnoreCase("background"), prefixedValueGrouped);// gonna send this to
+      //if the output returns as background need to fix the text.grouping - to reflect the text.
 
       return interfaceConsumer.get(output, text);
     } else {
@@ -135,21 +141,19 @@ public class TerminalApp {
   };
 
   public static String groundHandler(String text) {
-    System.out.printf("text from groundHandler: %s\n", text.trim());
-    // String subString = text.substring(0, text.indexOf(':'));
-    // System.out.println(subString);
-    String mytext = text.equalsIgnoreCase("f:") ? "foreground" : "background";
-    System.out.printf("groundHandler(text:%s)\n", mytext);
-    return mytext;
+    // System.out.printf("text from groundHandler: %s\n", text.trim());
+    //String subString = text.substring(4, 5);
+    System.out.printf("text passed : %s\n", text);
+    return text.equalsIgnoreCase("b") ? "background" : "foreground";
   }
 
   // hold on I'm fixing a format on my configs
-  public static String returnRegexToStringFormat(String sourceText) {
-    // String subText = sourceText.substring(1, 20);
-    // system.out.printf("SubText: %s", subText);
-
+  public static String returnRegexToStringFormat(boolean isValidBackground, String sourceText){
+    if (isValidBackground) {
+      return "";
+    }
     return switch (sourceText) {
-      case "f:r" -> String.format("%sred", groundHandler(sourceText));
+      case "f:r" -> String.format("%s:red", groundHandler(sourceText));
       case "f:g" -> String.format("%s:green", groundHandler(sourceText));
       case "f:b" -> String.format("%s:blue", groundHandler(sourceText));
       case "f:y" -> String.format("%s:blue", groundHandler(sourceText));
@@ -268,6 +272,7 @@ public class TerminalApp {
     fancyPrint("f:w;║ @Override      ║");
     // System.out.println(printWithColor.apply("b;╚════════════════╝"));
     fancyPrint("f:b;╚════════════════╝");
+    fancyPrint("f:r;b:b;╚════════════════╝");
   }
 
   /**
