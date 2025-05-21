@@ -16,6 +16,8 @@ import java.util.Objects;
 //import java.util.MissingFormatArgumentException;
 import java.util.Scanner;
 import java.util.function.Function;
+import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.function.Consumer;
 
@@ -33,6 +35,7 @@ public class TerminalApp {
     {
     }
   };
+  private static BiFunction<String, String, String> concatString = String::concat;
 
   // why is this color system importatnt? -> it's going to be with the hitting
   // system :) but also going to be for other systems... this is going to be an
@@ -81,7 +84,7 @@ public class TerminalApp {
   /**
    * private static Supplier<String> regexSupplier = str -> {
    * return switch (str) {
-   * case "\\^[g:]\\s" ->
+   * case "\\^[g:]\\s" -
    * }
    * };
    **/
@@ -109,48 +112,72 @@ public class TerminalApp {
     }
     // need to make the regex allow for {f:{text};b:{text}}
     String availableColors = "(?:b|bl|w|r|g|cy|y|p)"; // this
+
     String prefix = String.format("(?:(?:f:%1$s)(?:;b:%1$ss)?|b:%1$s)", availableColors);
-    // this regex above is working but for some reason it's not allowing me to do
-    // the full f:{color}... then assume that I wanted to have a background ->
-    // f:{color}b:{color}
     String fullFormatted = String.format("^%s;(.+)$", prefix);
     Pattern p = Pattern.compile(fullFormatted);
     Matcher m = p.matcher(str);
     boolean matchFound = m.find();
+    boolean withBackground = false;
 
     if (matchFound) {
+
       String text = m.group(1);
-      System.out.printf("text %s\n", text);
       String prefixedValueGrouped = str.substring(0, str.indexOf(';'));// grabbing the g: ... b: etc... I want to delete
+
       String backgroundValue = str.substring(4, 5);
-      System.out.printf("withBackground? %s\n", backgroundValue);
+      String moreContext = str.substring(4, 8);
+      System.out.println(moreContext);
+      // System.out.printf("withBackground? %s\nmoreContext: %s\n", backgroundValue,
+      // moreContext);
 
-      // String content = str.substring(prefixedValueGrouped.length()).trim();
-      // System.out.printf("prefixedValuedGrouped: %s\ntext: %s\ncontent: %s\n",
-      // prefixedValueGrouped, text, content);
-      
-      String output = returnRegexToStringFormat(groundHandler(backgroundValue).equalsIgnoreCase("background"), prefixedValueGrouped);// gonna send this to
-      //if the output returns as background need to fix the text.grouping - to reflect the text.
+      if (backgroundValue.equalsIgnoreCase("b")) {
+        withBackground = true;
+      }
 
-      return interfaceConsumer.get(output, text);
+      // need to create some logic that handles what to do if there is a background
+      // associated with the foreground
+      if (withBackground) {
+        prefixedValueGrouped = str.substring(0, 4);
+        String concated = concatString.apply(prefixedValueGrouped, moreContext);
+        String backgroundText = text.substring(4, text.length());
+        String background = returnRegexToStringFormat(withBackground, concated);
+        return interfaceConsumer.get(background, backgroundText);
+      } else {
+        String foregroundOnly = returnRegexToStringFormat(false, prefixedValueGrouped);// gonna send this to
+        return interfaceConsumer.get(foregroundOnly, text);
+      }
     } else {
+
       System.out.println("please enter a color: ");
       String nextColor = scan.nextLine();
       return interfaceConsumer.get(nextColor, str);
+
     }
   };
 
-  public static String groundHandler(String text) {
-    // System.out.printf("text from groundHandler: %s\n", text.trim());
-    //String subString = text.substring(4, 5);
-    System.out.printf("text passed : %s\n", text);
+  public static String groundHandler(
+      String text) {
     return text.equalsIgnoreCase("b") ? "background" : "foreground";
   }
 
-  // hold on I'm fixing a format on my configs
-  public static String returnRegexToStringFormat(boolean isValidBackground, String sourceText){
+  public static String returnRegexToStringFormat(boolean isValidBackground, String sourceText) {
+    // sourceText = sourceText.indexOf(8).equalsIgnoreCase(";") ?
+    // sourceText.substring(0, 7) : sourceText;
+    System.out.println(sourceText.indexOf(7));
+    System.out.println(sourceText);
     if (isValidBackground) {
-      return "";
+      // we need to make it clear that isValidBackground is ONLY Associated with the
+      // connection that there is a foreground color as well
+      return switch (sourceText) {
+        case "f:r;b:b" -> String.format("%s:red_%s:blue", groundHandler(sourceText.substring(0, 1)),
+            groundHandler(sourceText.substring(4, 5)));
+        case "f:r;b:bl" -> String.format("%s:red_%s:black", groundHandler(sourceText.substring(0, 1)),
+            groundHandler(sourceText.substring(4, 5)));
+        case "f:w;b:bl" -> String.format("%s:white_%s:black", groundHandler(sourceText.substring(0, 1)),
+            groundHandler(sourceText.substring(4, 5)));
+        default -> "";
+      };
     }
     return switch (sourceText) {
       case "f:r" -> String.format("%s:red", groundHandler(sourceText));
@@ -169,6 +196,11 @@ public class TerminalApp {
   // how are we going to do that: ? -> memoization?
   public static void fancyPrint(String text) {
     System.out.println(printWithColor.apply(text));
+  }
+
+  private void testCases() {
+    List<String> testCases = List.of(
+        "f:r;b:bl;Something");
   }
 
   public static void main(String[] args) throws InterruptedException {
