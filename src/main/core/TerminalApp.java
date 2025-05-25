@@ -113,21 +113,25 @@ public class TerminalApp {
     // need to make the regex allow for {f:{text};b:{text}}
     String availableColors = "(?:b|bl|w|r|g|cy|y|p)"; // this
 
+    String regexType = String.format("^\\W((f|b):%s\\W(:|;)$)|^\\Wf:%s::b:%s\\W(:|;)$", availableColors,
+        availableColors, availableColors);
+    System.out.printf("regexType: %s\n", regexType);
     String prefix = String.format("(?:(?:f:%1$s)(?:;b:%1$ss)?|b:%1$s)", availableColors);
     String fullFormatted = String.format("^%s;(.+)$", prefix);
-    Pattern p = Pattern.compile(fullFormatted);
+    // Pattern p = Pattern.compile(fullFormatted);
+    Pattern p = Pattern.compile(regexType);
     Matcher m = p.matcher(str);
     boolean matchFound = m.find();
     boolean withBackground = false;
 
     if (matchFound) {
-
       String text = m.group(1);
-      String prefixedValueGrouped = str.substring(0, str.indexOf(';'));// grabbing the g: ... b: etc... I want to delete
+      String prefixedValueGrouped = str.substring(str.indexOf(';'));// grabbing the g: ... b: etc... I want to delete
+      System.out.printf("m.group(1): %s\nprefixedValued: %s\n", text, prefixedValueGrouped);
 
       String backgroundValue = str.substring(4, 5);
       String moreContext = str.substring(4, 8);
-      System.out.println(moreContext);
+      System.out.printf("moreContext: %s\n", moreContext);
       // System.out.printf("withBackground? %s\nmoreContext: %s\n", backgroundValue,
       // moreContext);
 
@@ -144,8 +148,9 @@ public class TerminalApp {
         String background = returnRegexToStringFormat(withBackground, concated);
         return interfaceConsumer.get(background, backgroundText);
       } else {
-        String foregroundOnly = returnRegexToStringFormat(false, prefixedValueGrouped);// gonna send this to
-        return interfaceConsumer.get(foregroundOnly, text);
+        String foregroundOfullFormattednly = returnRegexToStringFormat(false, text);// gonna send this
+                                                                                    // to
+        return interfaceConsumer.get(foregroundOfullFormattednly, text);
       }
     } else {
 
@@ -164,8 +169,8 @@ public class TerminalApp {
   public static String returnRegexToStringFormat(boolean isValidBackground, String sourceText) {
     // sourceText = sourceText.indexOf(8).equalsIgnoreCase(";") ?
     // sourceText.substring(0, 7) : sourceText;
-    System.out.println(sourceText.indexOf(7));
-    System.out.println(sourceText);
+    System.out.printf("sourceText[index7th]: %s\n", sourceText.indexOf(7));
+    System.out.printf("source text: %s\n\n", sourceText);
     if (isValidBackground) {
       // we need to make it clear that isValidBackground is ONLY Associated with the
       // connection that there is a foreground color as well
@@ -174,7 +179,7 @@ public class TerminalApp {
             groundHandler(sourceText.substring(4, 5)));
         case "f:r;b:bl" -> String.format("%s:red_%s:black", groundHandler(sourceText.substring(0, 1)),
             groundHandler(sourceText.substring(4, 5)));
-        case "f:w;b:bl" -> String.format("%s:white_%s:black", groundHandler(sourceText.substring(0, 1)),
+        case "f:w::b:bl" -> String.format("%s:white_%s:black", groundHandler(sourceText.substring(0, 1)),
             groundHandler(sourceText.substring(4, 5)));
         default -> "";
       };
@@ -208,7 +213,7 @@ public class TerminalApp {
     System.out.print(TUI.Utils.CLEAR_SCREEN.getAnsiCode());
     System.out.flush(); // Ensures the screen is cleared immediately
 
-    fancyPrint("w::bl; Welmcome to my Java Terminal App");
+    fancyPrint("{f:w::b:bl}: Welmcome to my Java Terminal App");
     System.out.printf("%s Welcome to My Java Terminal App!%s\n",
         TUI.Foreground.WHITE.getAnsiCode() + TUI.Background.BLACK.getAnsiCode(),
         TUI.Utils.RESET.getAnsiCode());
@@ -291,20 +296,20 @@ public class TerminalApp {
     // fancyPrint("r::w;╔════════════════╗");
     // fancyPrint("w::r;║ Welcome! ║");
     // fancyPrint("b::w;║ ║");
-    fancyPrint("f:r;╔════════════════╗");
+    fancyPrint("{f:r}:╔════════════════╗");
     // System.out.println(printWithColor.apply("r;╔════════════════╗"));
-    fancyPrint("f:w;║   Welcome!     ║");
+    fancyPrint("{f:w}:║   Welcome!     ║");
     // System.out.println(printWithColor.apply("w;║ Welcome! ║"));
-    fancyPrint("f:b;║                ║");
+    fancyPrint("{f:b}:║                ║");
     // System.out.println(printWithColor.apply("b;╠════════════════╣"));
-    fancyPrint("f:b;╠════════════════╣");
+    fancyPrint("{f:b}:╠════════════════╣");
     // System.out.println(printWithColor.apply("r;║ Developed: ║"));
-    fancyPrint("f:r;║ Developed:     ║");
+    fancyPrint("{f:r}:║ Developed:     ║");
     // System.out.println(printWithColor.apply("w;║ @Override ║"));
-    fancyPrint("f:w;║ @Override      ║");
+    fancyPrint("{f:w}:║ @Override      ║");
     // System.out.println(printWithColor.apply("b;╚════════════════╝"));
-    fancyPrint("f:b;╚════════════════╝");
-    fancyPrint("f:r;b:b;╚════════════════╝");
+    fancyPrint("{f:b}:╚════════════════╝");
+    fancyPrint("{f:r::b:b}:╚════════════════╝");
   }
 
   /**
